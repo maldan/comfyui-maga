@@ -255,3 +255,62 @@ class CharacterDB:
             return (", ".join(tags),)
 
         return ("",)
+
+
+class EnvironmentDB:
+    NAME = get_name("EnvironmentDB")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+    RETURN_TYPES = ("STRING", "STRING",)
+    RETURN_NAMES = ("Location", "Light")
+
+    def __init__(self):
+        pass
+
+    locations = {
+        'none': [],
+        'bedroom': ["bedroom", "bed", "window"],
+        'bathroom': ['bathroom', 'blue tails', 'mirror', 'bathtub', 'glass door', 'steam', 'wet', 'sweat'],
+        'japanese bathhouse': ['japanese bathhouse', 'wooden vat', 'wooden bathtub', 'bamboo'],
+        'japanese forest': ['japanese forest', 'wooden lanterns'],
+        'onsen': ['onsen', 'hot water', 'steam', 'sweat', 'wet', 'stones', 'reflections on water'],
+        'beach': ['beach', 'ocean', 'palms', 'wind', 'waves', 'sand'],
+        'large royal room': ['large royal room', 'golden details', 'rich furniture'],
+        'black': ['black background'],
+        'meadown': ['meadow', 'grass', 'flowers', 'wind', 'clouds', 'the grass shimmers in the wind', 'leaves'],
+        'rain forest': ['vibrant rainforest', 'bioluminescent fungi', 'rain', 'fog', 'wet', 'glowing mushrooms'],
+        'laboratory': ['laboratory', 'flasks', 'test tubes', 'tables']
+    }
+
+    lights = {
+        'none': [],
+        'moonlight': ["moonlight", "cinematic", "rim light", "deep night"],
+        'daytime': ["daytime", "cinematic", "rim light", "sunlight"],
+        'early morning': ['cinematic', 'rim light', 'early morning', 'god rays'],
+
+        'loop lighting': ['loop lighting', 'broad lighting', 'rembrandt lighting'],
+        'chiaroscuro': ['chiaroscuro', 'noir', 'dimly lit'],
+
+        'god rays': ['crepuscular rays', 'god rays', 'light shimmering', 'iridescent lighting', 'luminescent effects']
+    }
+
+    @classmethod
+    def INPUT_TYPES(self):
+        return {
+            "required": {
+                "location": (list(self.locations.keys()),),
+                "light": (list(self.lights.keys()),),
+            },
+        }
+
+    def execute(self, location, light):
+        location_tags = []
+        light_tags = []
+
+        if self.locations.get(location, '') != '':
+            location_tags = self.locations[location]
+
+        if self.lights.get(light, '') != '':
+            light_tags = self.lights[light]
+
+        return (", ".join(location_tags), ", ".join(light_tags),)

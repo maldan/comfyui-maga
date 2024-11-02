@@ -20,12 +20,13 @@ class RealESRGANDenoise:
         return {
             "required": {
                 "images": ("IMAGE", {}),
+                "scale": (["x1", "x2", "x4"],)
             },
         }
 
     RETURN_TYPES = ("IMAGE",)
 
-    def execute(self, images):
+    def execute(self, images, scale):
         # Получаем путь к папке, где находится файл
         current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -59,7 +60,11 @@ class RealESRGANDenoise:
                 subprocess.run(command, check=True)
 
                 img = Image.open(img_path_upscale)
-                img = img.resize((img.width // 4, img.height // 4))
+
+                if scale == "x1":
+                    img = img.resize((img.width // 4, img.height // 4), resample=Image.BILINEAR)
+                if scale == "x2":
+                    img = img.resize((img.width // 2, img.height // 2), resample=Image.BILINEAR)
 
                 final_images.append(pil2tensor(img))
 
