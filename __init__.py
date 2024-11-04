@@ -1,4 +1,4 @@
-from .images import ImagesToGrid, DirToImages, SelectImagesFromBatch, GridToImages, ImagesToVideo
+from .images import ImagesToGrid, DirToImages, SelectImagesFromBatch, GridToImages, ImagesToVideo, ImageRGBToMasks
 from .videos import VideoToImages
 from .strings import StringRemoveTags, StringRemoveDuplicatedTags, CharacterDB, EnvironmentDB
 from .realesrgan import RealESRGANDenoise
@@ -22,5 +22,6 @@ NODE_CLASS_MAPPINGS = {
     RealESRGANDenoise.NAME: RealESRGANDenoise,
 
     ConditionMultipleMaskArea.NAME: ConditionMultipleMaskArea,
+    ImageRGBToMasks.NAME: ImageRGBToMasks,
 }
 

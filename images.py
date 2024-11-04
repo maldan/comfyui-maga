@@ -384,3 +384,38 @@ class ImagesToVideo:
         return ()
 
 
+class ImageRGBToMasks:
+    NAME = get_name("ImageRGBToMasks")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE", {}),
+                "threshold": ("FLOAT", {
+                    "default": 0.9, "min": 0.01, "max": 1.0, "step": 0.01
+                }),
+            },
+        }
+
+    RETURN_TYPES = ("MASK","MASK","MASK")
+    RETURN_NAMES = ("mask1","mask2","mask3")
+
+    def execute(self, image, threshold: float,):
+        # Mask 1
+        mask_1 = (image[:, :, :, 0] >= threshold).float()
+        mask_1 = mask_1.permute(0, 1, 2)
+
+        # Mask 2
+        mask_2 = (image[:, :, :, 1] >= threshold).float()
+        mask_2 = mask_2.permute(0, 1, 2)
+
+        mask_3 = (image[:, :, :, 2] >= threshold).float()
+        mask_3 = mask_3.permute(0, 1, 2)
+
+        return (mask_1, mask_2, mask_3, )

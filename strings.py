@@ -202,6 +202,11 @@ class CharacterDB:
             'street fighter', 'juri han',
             'abs', 'athletic body', 'braids'
         ],
+        'chun li': [
+            'street fighter', 'chun li',
+            'abs', 'athletic body', 'braids', 'large thighs',
+            'chinese blue clothes'
+        ],
         'aishi san': [
             'koutetsu no majo annerose', 'aishi san',
             'dark skin', 'purple hairs',
@@ -237,12 +242,17 @@ class CharacterDB:
             "required": {
                 "name": (list(self.dictas.keys()),),
                 "is_nude": ("BOOLEAN",),
+                "additional": ("STRING", {
+                    "multiline": True,
+                })
             },
         }
 
-    def execute(self, name, is_nude):
+    def execute(self, name, is_nude, additional: str):
         if self.dictas.get(name, '') != '':
-            tags = self.dictas[name]
+            tags = self.dictas[name].copy()
+
+            tags += [x.strip() for x in additional.split(",")]
 
             if not is_nude:
                 input_remove = [x.strip() for x in [".*nipple.*", ".*penis.*", ".*futanari.*", ".*balls.*"]]
@@ -261,8 +271,8 @@ class EnvironmentDB:
     NAME = get_name("EnvironmentDB")
     CATEGORY = get_category()
     FUNCTION = "execute"
-    RETURN_TYPES = ("STRING", "STRING",)
-    RETURN_NAMES = ("Location", "Light")
+    RETURN_TYPES = ("STRING", "STRING", "STRING",)
+    RETURN_NAMES = ("location", "light", "quality")
 
     def __init__(self):
         pass
@@ -294,18 +304,22 @@ class EnvironmentDB:
         'god rays': ['crepuscular rays', 'god rays', 'light shimmering', 'iridescent lighting', 'luminescent effects']
     }
 
+
+
     @classmethod
     def INPUT_TYPES(self):
         return {
             "required": {
                 "location": (list(self.locations.keys()),),
                 "light": (list(self.lights.keys()),),
+                "quality": (["none", "low", "good", "epic"],),
             },
         }
 
-    def execute(self, location, light):
+    def execute(self, location, light, quality):
         location_tags = []
         light_tags = []
+        quality_tags = []
 
         if self.locations.get(location, '') != '':
             location_tags = self.locations[location]
@@ -313,4 +327,11 @@ class EnvironmentDB:
         if self.lights.get(light, '') != '':
             light_tags = self.lights[light]
 
-        return (", ".join(location_tags), ", ".join(light_tags),)
+        if quality == "low":
+            quality_tags = ["score_4", "score_5", "source anime"]
+        if quality == "good":
+            quality_tags = ["score_7", "score_8", "source anime", "good quality", "hires"]
+        if quality == "epic":
+            quality_tags = ["score_8", "score_9", "source anime", "best quality", "hires", "masterpiece", "talented artist", "high detailed"]
+
+        return (", ".join(location_tags), ", ".join(light_tags), ", ".join(quality_tags),)
