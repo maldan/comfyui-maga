@@ -211,6 +211,65 @@ class ImagesToGrid:
         return (grid_image.unsqueeze(0),)  # Формат: (1, grid_y * H, grid_x * W, C)
 
 
+class OneImageToGrid:
+    NAME = get_name("OneImageToGrid")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE", {}),
+                "grid_x": ("INT", {
+                    "default": 1,
+                    "min": 1,
+                    "max": 8,
+                    "step": 1,
+                    "display": "number",
+                }),
+                "grid_y": ("INT", {
+                    "default": 1,
+                    "min": 1,
+                    "max": 8,
+                    "step": 1,
+                    "display": "number",
+                }),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+
+    def execute(self, image, grid_x, grid_y):
+        # Извлекаем размеры входных изображений
+        _, H, W, C = image.shape  # Входной формат: (B, H, W, C)
+
+        # Рассчитываем размеры итогового изображения в сетке
+        grid_height = grid_y * H
+        grid_width = grid_x * W
+
+        # Создаем пустое изображение для всей сетки с черным фоном
+        grid_image = torch.zeros((grid_height, grid_width, C), dtype=image.dtype)
+
+        # Заполняем сетку изображениями
+        for idx in range(grid_x * grid_y):
+            row = idx // grid_x
+            col = idx % grid_x
+
+            # Проверяем, чтобы не выйти за границы сетки
+            if row < grid_y:
+                top = row * H
+                left = col * W
+                # Вставляем кадр в нужное место сетки
+                grid_image[top:top + H, left:left + W, :] = image[0]
+
+        # Добавляем размерность batch, чтобы вернуть (1, H', W', C)
+        return (grid_image.unsqueeze(0),)  # Формат: (1, grid_y * H, grid_x * W, C)
+
+
 class SelectImagesFromBatch:
     NAME = get_name("SelectImagesFromBatch")
     CATEGORY = get_category()
@@ -419,3 +478,103 @@ class ImageRGBToMasks:
         mask_3 = mask_3.permute(0, 1, 2)
 
         return (mask_1, mask_2, mask_3, )
+
+"""
+class XXXX:
+    NAME = get_name("XXXX")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE", {}),
+                "threshold": ("FLOAT", {
+                    "default": 0.9, "min": 0.01, "max": 1.0, "step": 0.01
+                }),
+            },
+        }
+
+    RETURN_TYPES = ("MASK")
+    RETURN_NAMES = ("mask")
+
+    def execute(self, image, threshold: float):
+        # Mask 1
+        mask_1 = (image[:, :, :, 0] >= threshold).float()
+        mask_1 = mask_1.permute(0, 1, 2)
+
+        return (mask_1, )
+"""
+
+class ImageSaveWithFormat:
+    NAME = get_name("ImageSaveWithFormat")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "images": ("IMAGE", {}),
+                "image_format": (["webp", "jpeg", "png"], {}),
+                "quality": ("FLOAT", {
+                    "default": 1,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01,
+                    "display": "number",
+                })
+            },
+        }
+
+    RETURN_TYPES = ()
+    OUTPUT_NODE = True
+
+    def execute(self, images, image_format, quality):
+        import subprocess
+        import tempfile
+        import folder_paths
+        from datetime import datetime
+
+        results = list()
+
+        # Создаем временную директорию
+        with tempfile.TemporaryDirectory() as temp_folder:
+            print("Temporary folder created:", temp_folder)
+
+            # Сохраняем изображения в темповую папку
+            for i, image_tensor in enumerate(images, start=1):
+                file_path = os.path.join(temp_folder, f"{i:04d}.png")
+                tensor2pil(image_tensor).save(file_path)
+
+                # Получаем текущую дату и время
+                current_time = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+                output_path = os.path.join(folder_paths.get_output_directory(), f"{current_time}.{image_format}")
+
+                # Команда для создания видео из изображений
+                command = [
+                    "magick",
+                    os.path.join(temp_folder, f"{i:04d}.png"),  # Путь к изображениям с шаблоном
+                    "-quality", str(int(quality * 100)),
+                    output_path
+                ]
+
+                # Выполнение команды
+                subprocess.run(command, check=True)
+                print(f"Image created at {output_path}")
+
+                results.append({
+                    "filename": f"{current_time}.{image_format}",
+                    "subfolder": folder_paths.get_output_directory(),
+                    "type": "output"
+                })
+
+        return { "ui": { "images": results } }
+

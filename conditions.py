@@ -71,3 +71,163 @@ class ConditionMultipleMaskArea:
                                                                        "mask_strength": strength_3})
 
         return (final_cond,)
+
+
+
+class ConditionMultipleGridArea:
+    NAME = get_name("ConditionMultipleGridArea")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "base_clip": ("CLIP", {}),
+                "grid_x": ("INT", {
+                    "default": 1,
+                    "min": 1,
+                    "max": 8,
+                    "step": 1,
+                    "display": "number",
+                }),
+                "grid_y": ("INT", {
+                    "default": 1,
+                    "min": 1,
+                    "max": 8,
+                    "step": 1,
+                    "display": "number",
+                }),
+                "strength": ("FLOAT", { "default": 1, "min": -4.0, "max": 4.0, "step": 0.1 }),
+                "base_text": ("STRING", { "multiline": True }),
+                "area_texts": ("STRING", { "multiline": True }),
+                "text_delimiter": ("STRING", { "multiline": False }),
+            },
+        }
+
+    RETURN_TYPES = ("CONDITIONING",)
+    RETURN_NAMES = ("cond",)
+
+    def execute(self, base_clip, grid_x, grid_y, strength: float, base_text: str, area_texts: str, text_delimiter: str):
+        final_cond = []
+
+        item_w = 1 / grid_x
+        item_h = 1 / grid_y
+        x = 0
+        y = 0
+
+        area_tuples = area_texts.split(text_delimiter)
+        print(area_tuples)
+
+        for area_text in area_tuples:
+            print(area_text)
+            if area_text != "":
+                output_1 = base_clip.encode_from_tokens(
+                    base_clip.tokenize(area_text + ", " + base_text), return_pooled=True, return_dict=True
+                )
+                cond_1 = output_1.pop("cond")
+                conditioning_1 = [[cond_1, output_1]]
+                final_cond += node_helpers.conditioning_set_values(conditioning_1, {
+                    "area": ("percentage", item_h, item_w, y, x),
+                    "set_area_to_bounds": False,
+                    "strength": strength,
+                })
+                print(("percentage", item_h, item_w, y, x))
+
+                # Shift area
+                x += item_w
+                if x >= 1:
+                    x = 0
+                    y += item_h
+
+        return (final_cond,)
+
+
+"""
+class ConditionMultipleGridMask:
+    NAME = get_name("ConditionMultipleGridMask")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "mask": ("MASK", {}),
+                "base_clip": ("CLIP", {}),
+                "grid_x": ("INT", {
+                    "default": 1,
+                    "min": 1,
+                    "max": 8,
+                    "step": 1,
+                    "display": "number",
+                }),
+                "grid_y": ("INT", {
+                    "default": 1,
+                    "min": 1,
+                    "max": 8,
+                    "step": 1,
+                    "display": "number",
+                }),
+                "base_text": ("STRING", { "multiline": True }),
+                "area_texts": ("STRING", { "multiline": True }),
+                "text_delimiter": ("STRING", { "multiline": False }),
+            },
+        }
+
+    RETURN_TYPES = ("CONDITIONING","MASK")
+    RETURN_NAMES = ("cond","masks")
+
+    def execute(self, mask, base_clip, grid_x, grid_y, base_text: str, area_texts: str, text_delimiter: str):
+        final_cond = []
+        masks = []
+
+        _, H, W = mask.shape
+
+        item_w = W // grid_x
+        item_h = H // grid_y
+        x = 0
+        y = 0
+
+        area_tuples = area_texts.split(text_delimiter)
+        print(area_tuples)
+
+        for area_text in area_tuples:
+            print(area_text)
+            if area_text != "":
+                output_1 = base_clip.encode_from_tokens(
+                    base_clip.tokenize(area_text + ", " + base_text), return_pooled=True, return_dict=True
+                )
+                cond_1 = output_1.pop("cond")
+                conditioning_1 = [[cond_1, output_1]]
+
+                x_end = x + item_w
+                y_end = y + item_h
+                submask = mask[:, y:y_end, x:x_end]
+                print(x, y, x_end, y_end)
+
+                new_mask = torch.zeros_like(mask)
+                new_mask[:, y:y_end, x:x_end] = submask
+
+                final_cond += node_helpers.conditioning_set_values(conditioning_1, {
+                    "mask": new_mask,
+                    "set_area_to_bounds": False,
+                    "mask_strength": 1 / len(area_tuples)
+                })
+
+                masks.append(new_mask)
+
+                # Shift area
+                x += item_w
+                if x >= W:
+                    x = 0
+                    y += item_h
+
+        return (final_cond, torch.cat(masks, dim=0), )
+"""

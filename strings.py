@@ -1,3 +1,5 @@
+import json
+
 from .constants import get_category, get_name, pil2tensor
 import os
 from PIL import Image
@@ -77,170 +79,19 @@ class CharacterDB:
     def __init__(self):
         pass
 
-    dictas = {
-        'none': [],
-
-        'daki': [
-            'kimetsu no yaiba', 'daki',
-            'white hair', 'tattoo',
-            'white skin', 'gray nipples',
-            'medium breasts',
-            'veins', 'hairpins'
-        ],
-        'sylvia': [
-            'konosuba', 'sylvia',
-            'dark skin', 'huge breasts',
-            'long penis', 'futanari', 'dark nipples'
-        ],
-        'flare corona': [
-            'fairy tail', 'flare corona',
-            'red long hair', 'twin braids',
-            'large breasts', 'thin waist', 'wide hips',
-        ],
-        'zangya': [
-            'dragon ball z', 'zangya',
-            'green blue skin', 'long orange hair',
-            'dark blue nipples', 'large breasts',
-            'abs', 'athletic body'
-        ],
-        'carrot': [
-            'one piece', 'carrot',
-            'furry', 'bunny ears',
-            'funny furry'
-        ],
-        'squigly': [
-            'skullgirls', 'squigly', 'zombie',
-            'red eyes', 'blue skin', 'blue hair', 'eyeshadows', 'sewed mouth', 'purple nipples',
-        ],
-        'ashido mina': [
-            'boku no hero academia', 'ashido mina',
-            'medium breasts', 'pink skin', 'black sclera', 'yellow eyes'
-        ],
-        'morrigan aensland': [
-            'darkstalkers', 'morrigan aensland', 'large breasts'
-        ],
-        'kefla': [
-            'dragon ball z', 'kefla', 'athletic body', 'abs', 'large breasts'
-        ],
-        'raven': [
-            'teen titans', 'raven dc', 'gray skin', 'purple nipples'
-        ],
-        'sakuya izayoi': [
-            'touhou', 'sakuya izayoi', 'maid', 'white hair'
-        ],
-        'giselle gewelle': [
-            'bleach', 'giselle gewelle',
-            'futanari', 'long black hair', 'small breasts', 'long penis'
-        ],
-        'efanatika': [
-            'aku no onna kanbu', 'efanatika', 'dark elf',
-            'elf ears',
-            'long pink hair', 'blue skin', 'huge breasts',
-            'blue nipples', 'black sclera', 'yellow eyes',
-            'thin waist', 'thick thighs'
-        ],
-        'miruko': [
-            'boku no hero academia', 'miruko', 'dark skin',
-            'bunny ears', 'tan skin', 'athletic body',
-            'red eyes', 'white long hair'
-        ],
-        'tsunade': [
-            'naruto shippuuden', 'tsunade',
-            'blonde hair', 'large breasts'
-        ],
-        'kiryuuin satsuki': [
-            'kill la kill', 'kiryuuin satsuki',
-            'long black hair', 'thick eyebrows', 'blue eyes'
-        ],
-        'mount lady': [
-            'boku no hero academia',
-            'mount lady', 'mask', 'horns'
-        ],
-        'bulma': [
-            'dragon ball z', 'bulma', 'long blue hair',
-            'large breasts', 'blue eyes'
-        ],
-        'tatsumaki': [
-            'one punch man', 'tatsumaki',
-            'small breasts', 'wide thick legs',
-            'short green hair', 'green eyes'
-        ],
-        'fubuki': [
-            'one punch man', 'fubuki',
-            'large breasts', 'short dark green hair',
-            'thin waist', 'long legs', 'wide hips'
-        ],
-        'matoi ryuuko': [
-            'kill la kill', 'matoi ryuuko',
-            'short black hair', 'blue eyes'
-        ],
-        'lust': [
-            'fullmetal alchemist', 'lust', 'female',
-            'black hair', 'red eyes', 'hair with curls',
-            'long black nails', 'tattoo'
-        ],
-        'asui tsuyu': [
-            'boku no hero academia', 'asui tsuyu',
-            'saggy breasts', 'slim', 'moles',
-            'round eyes', 'long black hair',
-            'long tongue'
-        ],
-        'shihouin yoruichi': [
-            'bleach', 'shihouin yoruichi',
-            'dark skin', 'dark nipples',
-            'dark magenta hair with braid',
-            'athletic body'
-        ],
-        'tier harribel': [
-            'bleach', 'tier harribel',
-            '1girl', 'big breasts',
-            'short blonde hair', 'blonde eyelash', 'blonde brows',
-            'thin waist',
-            'dark skin', 'dark nipples'
-        ],
-        'juri han': [
-            'street fighter', 'juri han',
-            'abs', 'athletic body', 'braids'
-        ],
-        'chun li': [
-            'street fighter', 'chun li',
-            'abs', 'athletic body', 'braids', 'large thighs',
-            'chinese blue clothes'
-        ],
-        'aishi san': [
-            'koutetsu no majo annerose', 'aishi san',
-            'dark skin', 'purple hairs',
-            'large breasts', 'purple lips', 'long hairs', 'earrings'
-        ],
-        'frieren': [
-            'sousou no frieren', 'frieren',
-            'elf girl', 'red earrings',
-            'green eyes', 'elf ears',
-            'thick eyebrows', 'small eyes',
-            'small chest', 'slim'
-        ],
-        'android 21': [
-            'dragon ball z', 'majin android 21', 'pink skin', 'white hair',
-            'black sclera', 'red eyes'
-        ],
-        'cheelai': [
-            'dragon ball z', 'cheelai',
-            'green skin', 'green nipples', 'short white hair',
-        ],
-        'power': ['chainsaw man', 'power', 'long orange hair'],
-        'yamato': ['one piece', 'yamato', 'huge breasts', 'tall'],
-        'rebecca': ['cyberpunk edgerunners', 'rebecca', 'blue nipples'],
-        'yor briar': ['spy x family', 'yor briar', 'large breasts'],
-        '2b': ['nier automata', 'yorha no. 2 type b', 'large breast', 'thin waist', 'wide hips', 'long legs'],
-        'tohru kobayashi': ['maidragon', 'tohru kobayashi', 'large breasts', 'horns'],
-        'videl': ['dragon ball z', 'videl', 'black hair', 'braids'],
-    }
+    # Get characters json file
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    json_path = current_directory + "/characters.json"
+    dictas = {}
+    with open(json_path, "r") as f:
+        dictas = json.load(f)
+    dictas['none'] = {}
 
     @classmethod
     def INPUT_TYPES(self):
         return {
             "required": {
-                "name": (list(self.dictas.keys()),),
+                "name": (sorted(list(self.dictas.keys())),),
                 "is_nude": ("BOOLEAN",),
                 "additional": ("STRING", {
                     "multiline": True,
@@ -250,7 +101,19 @@ class CharacterDB:
 
     def execute(self, name, is_nude, additional: str):
         if self.dictas.get(name, '') != '':
-            tags = self.dictas[name].copy()
+            local_tags = []
+            local_tags += self.dictas[name]['source'].copy()
+            local_tags.append(name)
+            local_tags += self.dictas[name]['base'].copy()
+
+            if is_nude and self.dictas[name].get('nude') != None:
+                local_tags += self.dictas[name]['nude'].copy()
+
+            local_tags += [x.strip() for x in additional.split(",")]
+
+            return (", ".join(local_tags),)
+
+            """tags = self.dictas[name].copy()
 
             tags += [x.strip() for x in additional.split(",")]
 
@@ -262,9 +125,104 @@ class CharacterDB:
                     if not any(re.fullmatch(pattern, tag) for pattern in input_remove)
                 ]
 
-            return (", ".join(tags),)
+            return (", ".join(tags),)"""
 
         return ("",)
+
+
+class MultiCharacterDB:
+    NAME = get_name("Multi Character DB")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+    RETURN_TYPES = (
+        "STRING","STRING","STRING",
+        "STRING","STRING","STRING",
+        "STRING","STRING","STRING",
+    )
+
+    def __init__(self):
+        pass
+
+    # Get characters json file
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    json_path = current_directory + "/characters.json"
+    dictas = {}
+    with open(json_path, "r") as f:
+        dictas = json.load(f)
+    dictas['none'] = {}
+
+    @classmethod
+    def INPUT_TYPES(self):
+        return {
+            "required": {
+                "preview": (sorted(list(self.dictas.keys())),),
+                "names": ("STRING", {
+                    "multiline": True,
+                }),
+
+                "is_nude": ("BOOLEAN",),
+
+                "join_into_one": ("BOOLEAN",),
+                "delimeter": ("STRING",),
+
+                "additional": ("STRING", {
+                    "multiline": True,
+                })
+            },
+        }
+
+    def execute(self, preview: str, names: str, is_nude: bool, join_into_one: bool, delimeter: str, additional: str):
+        names = [x.strip() for x in names.split(',')]
+
+        tags = []
+
+        for name in names:
+            if self.dictas.get(name, '') != '':
+                local_tags = []
+                local_tags += self.dictas[name]['source'].copy()
+                local_tags.append(name)
+                local_tags += self.dictas[name]['base'].copy()
+
+                if is_nude and self.dictas[name].get('nude') != None:
+                    local_tags += self.dictas[name]['nude'].copy()
+
+                local_tags += [x.strip() for x in additional.split(",")]
+                tags += [", ".join(local_tags)]
+
+        print(tags)
+        if join_into_one:
+            return (delimeter.join(tags),)
+
+        return tuple(tags)
+
+
+class SplitStrings:
+    NAME = get_name("Split Strings")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+    RETURN_TYPES = (
+        "STRING","STRING",
+    )
+    RETURN_NAMES = ("", "selected")
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(self):
+        return {
+            "required": {
+                "text": ("STRING", {
+                    "multiline": True,
+                }),
+                "delimeter": ("STRING",),
+                "index": ("INT",)
+            },
+        }
+
+    def execute(self, text: str, delimeter: str, index: int):
+        tt = text.split(delimeter)
+        return (tt[index],)
 
 
 class EnvironmentDB:
