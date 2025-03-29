@@ -479,6 +479,80 @@ class ImageRGBToMasks:
 
         return (mask_1, mask_2, mask_3, )
 
+
+class ImageSaveWithFormat:
+    NAME = get_name("ImageSaveWithFormat")
+    CATEGORY = get_category()
+    FUNCTION = "execute"
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "images": ("IMAGE", {}),
+                "fixed_name": ("STRING", {}),
+                "image_format": (["webp", "jpeg", "png"], {}),
+                "quality": ("FLOAT", {
+                    "default": 1,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01,
+                    "display": "number",
+                })
+            },
+        }
+
+    RETURN_TYPES = ()
+    OUTPUT_NODE = True
+
+    def execute(self, images, fixed_name, image_format, quality):
+        import subprocess
+        import tempfile
+        import folder_paths
+        from datetime import datetime
+
+        results = list()
+
+        # Создаем временную директорию
+        with tempfile.TemporaryDirectory() as temp_folder:
+            print("Temporary folder created:", temp_folder)
+
+            # Сохраняем изображения в темповую папку
+            for i, image_tensor in enumerate(images, start=1):
+                file_path = os.path.join(temp_folder, f"{i:04d}.png")
+                tensor2pil(image_tensor).save(file_path)
+
+                # Получаем текущую дату и время
+                current_time = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+                file_name = f"{current_time}.{image_format}"
+                if fixed_name is not None and fixed_name != "":
+                    file_name = f"{fixed_name}.{image_format}"
+
+                output_path = os.path.join(folder_paths.get_output_directory(), file_name)
+
+                # Команда для создания видео из изображений
+                command = [
+                    "magick",
+                    os.path.join(temp_folder, f"{i:04d}.png"),  # Путь к изображениям с шаблоном
+                    "-quality", str(int(quality * 100)),
+                    output_path
+                ]
+
+                # Выполнение команды
+                subprocess.run(command, check=True)
+                print(f"Image created at {output_path}")
+
+                results.append({
+                    "filename": f"{current_time}.{image_format}",
+                    "subfolder": folder_paths.get_output_directory(),
+                    "type": "output"
+                })
+
+        return { "ui": { "images": results } }
+
 """
 class XXXX:
     NAME = get_name("XXXX")
