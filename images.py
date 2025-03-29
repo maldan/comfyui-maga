@@ -523,6 +523,7 @@ class ImageSaveWithFormat:
         return {
             "required": {
                 "images": ("IMAGE", {}),
+                "name": ("STRING", {}),
                 "image_format": (["webp", "jpeg", "png"], {}),
                 "quality": ("FLOAT", {
                     "default": 1,
@@ -537,7 +538,7 @@ class ImageSaveWithFormat:
     RETURN_TYPES = ()
     OUTPUT_NODE = True
 
-    def execute(self, images, image_format, quality):
+    def execute(self, images, name, image_format, quality):
         import subprocess
         import tempfile
         import folder_paths
@@ -556,6 +557,9 @@ class ImageSaveWithFormat:
 
                 # Получаем текущую дату и время
                 current_time = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+                if name is not None and name != "":
+                    current_time = name
+
                 output_path = os.path.join(folder_paths.get_output_directory(), f"{current_time}.{image_format}")
 
                 # Команда для создания видео из изображений
