@@ -480,6 +480,7 @@ class ImageRGBToMasks:
         return (mask_1, mask_2, mask_3, )
 
 
+"""
 class ImageSaveWithFormat:
     NAME = get_name("ImageSaveWithFormat")
     CATEGORY = get_category()
@@ -552,6 +553,7 @@ class ImageSaveWithFormat:
                 })
 
         return { "ui": { "images": results } }
+"""
 
 """
 class XXXX:
@@ -626,27 +628,13 @@ class ImageSaveWithFormat:
 
             # Сохраняем изображения в темповую папку
             for i, image_tensor in enumerate(images, start=1):
-                file_path = os.path.join(temp_folder, f"{i:04d}.png")
-                tensor2pil(image_tensor).save(file_path)
-
                 # Получаем текущую дату и время
-                current_time = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+                current_time = datetime.now().strftime("%Y-%m-%d_%H_%M_%S_%f")
                 if name is not None and name != "":
                     current_time = name
 
                 output_path = os.path.join(folder_paths.get_output_directory(), f"{current_time}.{image_format}")
-
-                # Команда для создания видео из изображений
-                command = [
-                    "magick",
-                    os.path.join(temp_folder, f"{i:04d}.png"),  # Путь к изображениям с шаблоном
-                    "-quality", str(int(quality * 100)),
-                    output_path
-                ]
-
-                # Выполнение команды
-                subprocess.run(command, check=True)
-                print(f"Image created at {output_path}")
+                tensor2pil(image_tensor).save(output_path, quality=int(quality * 100))
 
                 results.append({
                     "filename": f"{current_time}.{image_format}",
@@ -655,4 +643,3 @@ class ImageSaveWithFormat:
                 })
 
         return { "ui": { "images": results } }
-
